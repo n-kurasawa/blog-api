@@ -1,7 +1,10 @@
 //go:generate go run github.com/99designs/gqlgen
 package graph
 
-import "github.com/n-kurasawa/blog-api/graph/model"
+import (
+	"database/sql"
+	"github.com/n-kurasawa/blog-api/graph/model"
+)
 
 // This file will not be regenerated automatically.
 //
@@ -10,4 +13,5 @@ import "github.com/n-kurasawa/blog-api/graph/model"
 type Resolver struct{
 	articles []*model.Article
 	contents []*model.Content
+	DB *sql.DB
 }
