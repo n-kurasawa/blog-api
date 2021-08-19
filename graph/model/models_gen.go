@@ -2,20 +2,16 @@
 
 package model
 
-import (
-	"time"
-)
-
 type Content struct {
 	ID   string `json:"id"`
 	Body string `json:"body"`
 }
 
 type NewArticle struct {
-	Slug        string    `json:"slug"`
-	Title       string    `json:"title"`
-	Date        time.Time `json:"date"`
-	CoverImage  string    `json:"coverImage"`
-	Content     string    `json:"content"`
-	Description string    `json:"description"`
+	Slug        string `json:"slug"`
+	Title       string `json:"title"`
+	Date        string `json:"date"`
+	CoverImage  string `json:"coverImage"`
+	Content     string `json:"content"`
+	Description string `json:"description"`
 }

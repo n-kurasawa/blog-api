@@ -2,7 +2,7 @@ type Article {
   id: ID!
   slug: String!
   title: String!
-  date: Time!
+  date: String!
   coverImage: String!
   content: Content!
   description: String!
@@ -20,7 +20,7 @@ type Query {
 input NewArticle {
   slug: String!
   title: String!
-  date: Time!
+  date: String!
   coverImage: String!
   content: String!
   description: String!
