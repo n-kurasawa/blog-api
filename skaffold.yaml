@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta21
+kind: Config
+metadata:
+  name: blog-api
+build:
+  artifacts:
+  - image: naohirokurasawa/blog-api
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  kubectl:
+    manifests:
+    - k8s/development.yaml
+    - k8s/service.yaml
