@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -17,7 +18,8 @@ import (
 const defaultPort = "8080"
 
 func initDB() *sql.DB {
-	db, err := sql.Open("mysql", "")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/blog", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"))
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		panic(err)
 	}

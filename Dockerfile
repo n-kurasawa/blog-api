@@ -17,7 +17,7 @@ RUN go build \
     -ldflags '-s -w'
 
 
-FROM scratch as runner
+FROM arm32v7/debian:bullseye-slim as runner
 
 COPY --from=builder /go/bin/server /app/server
 

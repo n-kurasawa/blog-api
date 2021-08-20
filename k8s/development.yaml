@@ -22,3 +22,9 @@ spec:
           ports:
             - containerPort: 8080
           resources: {}
+          env:
+            - name: DB_HOST
+              value: mysql.blog.svc.cluster.local
+          envFrom:
+            - secretRef:
+                name: blog-db
