@@ -10,7 +10,14 @@ require (
 
 require (
 	github.com/agnivade/levenshtein v1.0.3 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.0 // indirect
 	github.com/mitchellh/mapstructure v0.0.0-20180203102830-a4e142e9c047 // indirect
+	github.com/pkg/errors v0.8.1 // indirect
+	github.com/russross/blackfriday/v2 v2.0.1 // indirect
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	github.com/urfave/cli/v2 v2.1.1 // indirect
+	golang.org/x/tools v0.0.0-20200114235610-7ae403b6b589 // indirect
+	gopkg.in/yaml.v2 v2.2.4 // indirect
 )

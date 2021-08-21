@@ -45,6 +45,10 @@ func (r *queryResolver) Articles(ctx context.Context) ([]*model.Article, error) 
 	return r.articles, nil
 }
 
+func (r *queryResolver) Article(ctx context.Context, slug string) (*model.Article, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // Article returns generated.ArticleResolver implementation.
 func (r *Resolver) Article() generated.ArticleResolver { return &articleResolver{r} }
 

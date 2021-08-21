@@ -15,6 +15,7 @@ type Content {
 
 type Query {
   articles: [Article!]!
+  article(slug: String!): Article
 }
 
 input NewArticle {
