@@ -21,7 +21,11 @@ func initDB() *sql.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/blog", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+	}
+
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
 	}
 	return db
 }
@@ -32,7 +36,10 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: initDB()}}))
+	db := initDB()
+	defer db.Close()
+
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver(db)}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

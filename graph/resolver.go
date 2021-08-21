@@ -13,5 +13,11 @@ import (
 type Resolver struct{
 	articles []*model.Article
 	contents []*model.Content
-	DB *sql.DB
+	repository Repository
+}
+
+func NewResolver(db *sql.DB) *Resolver {
+	return &Resolver{
+		repository: NewSQLRepository(db),
+	}
 }
