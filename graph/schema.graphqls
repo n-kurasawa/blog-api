@@ -21,7 +21,6 @@ type Query {
 input NewArticle {
   slug: String!
   title: String!
-  date: String!
   coverImage: String!
   content: String!
   description: String!

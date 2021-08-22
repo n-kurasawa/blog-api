@@ -276,7 +276,6 @@ type Query {
 input NewArticle {
   slug: String!
   title: String!
-  date: String!
   coverImage: String!
   content: String!
   description: String!
@@ -1985,14 +1984,6 @@ func (ec *executionContext) unmarshalInputNewArticle(ctx context.Context, obj in
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
 			it.Title, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "date":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
-			it.Date, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

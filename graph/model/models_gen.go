@@ -10,7 +10,6 @@ type Content struct {
 type NewArticle struct {
 	Slug        string `json:"slug"`
 	Title       string `json:"title"`
-	Date        string `json:"date"`
 	CoverImage  string `json:"coverImage"`
 	Content     string `json:"content"`
 	Description string `json:"description"`

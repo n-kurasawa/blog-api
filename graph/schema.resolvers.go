@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/n-kurasawa/blog-api/graph/generated"
 	"github.com/n-kurasawa/blog-api/graph/model"
 )
