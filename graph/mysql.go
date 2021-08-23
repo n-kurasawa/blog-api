@@ -44,7 +44,7 @@ func (r *SQLRepository) GetArticles() ([]*model.Article, error) {
 }
 
 func (r *SQLRepository) GetArticle(slug string) (*model.Article, error) {
-	row := r.db.QueryRow("select select id, slug, title, date, cover_image, description, content_id from articles where slug = ?", slug)
+	row := r.db.QueryRow("select id, slug, title, date, cover_image, description, content_id from articles where slug = ?", slug)
 	article := model.Article{}
 	if err := row.Scan(&article.ID, &article.Slug, &article.Title, &article.Date, &article.CoverImage, &article.Description, &article.ContentID); err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (r *SQLRepository) CreateArticle(article model.NewArticle) (*model.Article,
 		ID:          strconv.Itoa(int(articleID)),
 		Slug:        article.Slug,
 		Title:       article.Title,
-		Date:        date.Format("2006-01-02"),
+		Date:        date.Format(time.RFC3339),
 		CoverImage:  article.CoverImage,
 		Description: article.Description,
 		ContentID:   strconv.Itoa(int(contentID)),

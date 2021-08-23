@@ -25,6 +25,8 @@ spec:
           env:
             - name: DB_HOST
               value: mysql.blog.svc.cluster.local
+            - name: TZ
+              value: Asia/Tokyo
           envFrom:
             - secretRef:
                 name: blog-db
