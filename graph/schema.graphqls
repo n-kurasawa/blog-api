@@ -29,5 +29,3 @@ input NewArticle {
 type Mutation {
   createArticle(input: NewArticle!): Article!
 }
-
-scalar Time

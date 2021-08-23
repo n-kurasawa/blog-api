@@ -19,7 +19,7 @@ func (r *articleResolver) Content(ctx context.Context, obj *model.Article) (*mod
 }
 
 func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error) {
-	article, err := r.repository.SaveArticle(input)
+	article, err := r.repository.CreateArticle(input)
 	if err != nil {
 		return nil, err
 	}
