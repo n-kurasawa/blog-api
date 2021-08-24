@@ -11,11 +11,7 @@ import (
 )
 
 func (r *articleResolver) Content(ctx context.Context, obj *model.Article) (*model.Content, error) {
-	content, err := r.repository.GetContent(obj.ContentID)
-	if err != nil {
-		return nil, err
-	}
-	return content, nil
+	return For(ctx).ContentByID.Load(obj.ContentID)
 }
 
 func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error) {

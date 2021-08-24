@@ -8,3 +8,7 @@ type Repository interface {
 	GetArticle(slug string) (*model.Article, error)
 	CreateArticle(article model.NewArticle) (*model.Article, error)
 }
+
+type ContentRepository interface {
+	GetContents(ids []string) ([]*model.Content, []error)
+}

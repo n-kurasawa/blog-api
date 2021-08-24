@@ -3,6 +3,7 @@ package graph
 import (
 	"database/sql"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/n-kurasawa/blog-api/graph/model"
@@ -32,6 +33,7 @@ func (r *SQLRepository) GetArticles() ([]*model.Article, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	articles := make([]*model.Article, 0)
 	for rows.Next() {
 		article := model.Article{}
@@ -81,4 +83,38 @@ func (r *SQLRepository) CreateArticle(article model.NewArticle) (*model.Article,
 		Description: article.Description,
 		ContentID:   strconv.Itoa(int(contentID)),
 	}, nil
+}
+
+type ContentSQLRepository struct {
+	db *sql.DB
+}
+
+func NewContentSQLRepository(db *sql.DB) *ContentSQLRepository {
+	return &ContentSQLRepository{db: db}
+}
+
+func (r *ContentSQLRepository) GetContents(ids []string) ([]*model.Content, []error) {
+	placeholders := make([]string, len(ids))
+	args := make([]interface{}, len(ids))
+	for i := 0; i < len(ids); i++ {
+		placeholders[i] = "?"
+		args[i] = ids[i]
+	}
+
+	rows, err := r.db.Query("select id, body from contents where id in ("+strings.Join(placeholders, ",")+")", args...)
+	if err != nil {
+		return nil, []error{err}
+	}
+	defer rows.Close()
+
+	contents := make([]*model.Content, 0, len(ids))
+	for rows.Next() {
+		content := model.Content{}
+		err := rows.Scan(&content.ID, &content.Body)
+		if err != nil {
+			return nil, []error{err}
+		}
+		contents = append(contents, &content)
+	}
+	return contents, nil
 }
