@@ -6,6 +6,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/rs/zerolog"
+	sqldblogger "github.com/simukti/sqldb-logger"
+	"github.com/simukti/sqldb-logger/logadapter/zerologadapter"
 	"log"
 	"net/http"
 	"os"
@@ -23,6 +26,8 @@ func initDB() *sql.DB {
 		log.Fatal(err)
 	}
 
+	loggerAdapter := zerologadapter.New(zerolog.New(os.Stdout))
+	db = sqldblogger.OpenDriver(dsn, db.Driver(), loggerAdapter)
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
 	}
