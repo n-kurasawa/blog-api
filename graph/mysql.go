@@ -107,14 +107,19 @@ func (r *ContentSQLRepository) GetContents(ids []string) ([]*model.Content, []er
 	}
 	defer rows.Close()
 
-	contents := make([]*model.Content, 0, len(ids))
+	// 引数のidsの順序のまま返す必要がるため一度mapにしてids順の配列に変換してる
+	findByID := make(map[string]*model.Content)
 	for rows.Next() {
 		content := model.Content{}
 		err := rows.Scan(&content.ID, &content.Body)
 		if err != nil {
 			return nil, []error{err}
 		}
-		contents = append(contents, &content)
+		findByID[content.ID] = &content
+	}
+	contents := make([]*model.Content, len(ids))
+	for i, id := range ids {
+		contents[i] = findByID[id]
 	}
 	return contents, nil
 }
