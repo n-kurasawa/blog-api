@@ -15,3 +15,5 @@
 # vendor/
 
 k8s/secret.yaml
+
+bin
