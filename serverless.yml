@@ -55,18 +55,18 @@ package:
     - ./bin/**
 
 functions:
-  hello:
-    handler: bin/hello
+  query:
+    handler: bin/query
     events:
       - httpApi:
-          path: /hello
+          path: /query
           method: get
-  world:
-    handler: bin/world
-    events:
-      - httpApi:
-          path: /world
+      - http:
+          path: /playground
           method: get
+          response:
+            headers:
+              Content-Type: "'text/html'"
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
