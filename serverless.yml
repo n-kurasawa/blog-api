@@ -58,9 +58,9 @@ functions:
   query:
     handler: bin/query
     events:
-      - httpApi:
+      - http:
           path: /query
-          method: get
+          method: post
       - http:
           path: /playground
           method: get
