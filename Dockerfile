@@ -5,7 +5,7 @@ WORKDIR /go/src
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY ./server.go  ./
+COPY ./cmd/server.go  ./
 COPY ./graph ./graph
 
 ARG CGO_ENABLED=0
