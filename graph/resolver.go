@@ -1,4 +1,5 @@
-//go:generate go run github.com/99designs/gqlgen
+//go:generate go install github.com/99designs/gqlgen@latest
+//go:generate gqlgen
 package graph
 
 import (
@@ -9,7 +10,7 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Resolver struct{
+type Resolver struct {
 	repository Repository
 }
 
