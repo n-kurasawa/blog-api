@@ -7,7 +7,7 @@ type Content struct {
 	Body string `json:"body"`
 }
 
-type NewArticle struct {
+type NewPost struct {
 	Slug        string `json:"slug"`
 	Title       string `json:"title"`
 	CoverImage  string `json:"coverImage"`

@@ -1,4 +1,4 @@
-type Article {
+type Post {
   id: ID!
   slug: String!
   title: String!
@@ -14,11 +14,11 @@ type Content {
 }
 
 type Query {
-  articles: [Article!]!
-  article(slug: String!): Article
+  posts: [Post!]!
+  post(slug: String!): Post
 }
 
-input NewArticle {
+input NewPost {
   slug: String!
   title: String!
   coverImage: String!
@@ -27,5 +27,5 @@ input NewArticle {
 }
 
 type Mutation {
-  createArticle(input: NewArticle!): Article!
+  createPost(input: NewPost!): Post!
 }

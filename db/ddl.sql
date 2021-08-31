@@ -8,7 +8,7 @@ CREATE TABLE contents (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE articles (
+CREATE TABLE posts (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug` varchar(128) NOT NULL,
   `title` varchar(128) NOT NULL,

@@ -35,8 +35,8 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Article() ArticleResolver
 	Mutation() MutationResolver
+	Post() PostResolver
 	Query() QueryResolver
 }
 
@@ -44,7 +44,16 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Article struct {
+	Content struct {
+		Body func(childComplexity int) int
+		ID   func(childComplexity int) int
+	}
+
+	Mutation struct {
+		CreatePost func(childComplexity int, input model.NewPost) int
+	}
+
+	Post struct {
 		Content     func(childComplexity int) int
 		CoverImage  func(childComplexity int) int
 		Date        func(childComplexity int) int
@@ -54,30 +63,21 @@ type ComplexityRoot struct {
 		Title       func(childComplexity int) int
 	}
 
-	Content struct {
-		Body func(childComplexity int) int
-		ID   func(childComplexity int) int
-	}
-
-	Mutation struct {
-		CreateArticle func(childComplexity int, input model.NewArticle) int
-	}
-
 	Query struct {
-		Article  func(childComplexity int, slug string) int
-		Articles func(childComplexity int) int
+		Post  func(childComplexity int, slug string) int
+		Posts func(childComplexity int) int
 	}
 }
 
-type ArticleResolver interface {
-	Content(ctx context.Context, obj *model.Article) (*model.Content, error)
-}
 type MutationResolver interface {
-	CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error)
+	CreatePost(ctx context.Context, input model.NewPost) (*model.Post, error)
+}
+type PostResolver interface {
+	Content(ctx context.Context, obj *model.Post) (*model.Content, error)
 }
 type QueryResolver interface {
-	Articles(ctx context.Context) ([]*model.Article, error)
-	Article(ctx context.Context, slug string) (*model.Article, error)
+	Posts(ctx context.Context) ([]*model.Post, error)
+	Post(ctx context.Context, slug string) (*model.Post, error)
 }
 
 type executableSchema struct {
@@ -95,55 +95,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Article.content":
-		if e.complexity.Article.Content == nil {
-			break
-		}
-
-		return e.complexity.Article.Content(childComplexity), true
-
-	case "Article.coverImage":
-		if e.complexity.Article.CoverImage == nil {
-			break
-		}
-
-		return e.complexity.Article.CoverImage(childComplexity), true
-
-	case "Article.date":
-		if e.complexity.Article.Date == nil {
-			break
-		}
-
-		return e.complexity.Article.Date(childComplexity), true
-
-	case "Article.description":
-		if e.complexity.Article.Description == nil {
-			break
-		}
-
-		return e.complexity.Article.Description(childComplexity), true
-
-	case "Article.id":
-		if e.complexity.Article.ID == nil {
-			break
-		}
-
-		return e.complexity.Article.ID(childComplexity), true
-
-	case "Article.slug":
-		if e.complexity.Article.Slug == nil {
-			break
-		}
-
-		return e.complexity.Article.Slug(childComplexity), true
-
-	case "Article.title":
-		if e.complexity.Article.Title == nil {
-			break
-		}
-
-		return e.complexity.Article.Title(childComplexity), true
-
 	case "Content.body":
 		if e.complexity.Content.Body == nil {
 			break
@@ -158,36 +109,85 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Content.ID(childComplexity), true
 
-	case "Mutation.createArticle":
-		if e.complexity.Mutation.CreateArticle == nil {
+	case "Mutation.createPost":
+		if e.complexity.Mutation.CreatePost == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createArticle_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createPost_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateArticle(childComplexity, args["input"].(model.NewArticle)), true
+		return e.complexity.Mutation.CreatePost(childComplexity, args["input"].(model.NewPost)), true
 
-	case "Query.article":
-		if e.complexity.Query.Article == nil {
+	case "Post.content":
+		if e.complexity.Post.Content == nil {
 			break
 		}
 
-		args, err := ec.field_Query_article_args(context.TODO(), rawArgs)
+		return e.complexity.Post.Content(childComplexity), true
+
+	case "Post.coverImage":
+		if e.complexity.Post.CoverImage == nil {
+			break
+		}
+
+		return e.complexity.Post.CoverImage(childComplexity), true
+
+	case "Post.date":
+		if e.complexity.Post.Date == nil {
+			break
+		}
+
+		return e.complexity.Post.Date(childComplexity), true
+
+	case "Post.description":
+		if e.complexity.Post.Description == nil {
+			break
+		}
+
+		return e.complexity.Post.Description(childComplexity), true
+
+	case "Post.id":
+		if e.complexity.Post.ID == nil {
+			break
+		}
+
+		return e.complexity.Post.ID(childComplexity), true
+
+	case "Post.slug":
+		if e.complexity.Post.Slug == nil {
+			break
+		}
+
+		return e.complexity.Post.Slug(childComplexity), true
+
+	case "Post.title":
+		if e.complexity.Post.Title == nil {
+			break
+		}
+
+		return e.complexity.Post.Title(childComplexity), true
+
+	case "Query.post":
+		if e.complexity.Query.Post == nil {
+			break
+		}
+
+		args, err := ec.field_Query_post_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Article(childComplexity, args["slug"].(string)), true
+		return e.complexity.Query.Post(childComplexity, args["slug"].(string)), true
 
-	case "Query.articles":
-		if e.complexity.Query.Articles == nil {
+	case "Query.posts":
+		if e.complexity.Query.Posts == nil {
 			break
 		}
 
-		return e.complexity.Query.Articles(childComplexity), true
+		return e.complexity.Query.Posts(childComplexity), true
 
 	}
 	return 0, false
@@ -253,7 +253,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `type Article {
+	{Name: "graph/schema.graphqls", Input: `type Post {
   id: ID!
   slug: String!
   title: String!
@@ -269,11 +269,11 @@ type Content {
 }
 
 type Query {
-  articles: [Article!]!
-  article(slug: String!): Article
+  posts: [Post!]!
+  post(slug: String!): Post
 }
 
-input NewArticle {
+input NewPost {
   slug: String!
   title: String!
   coverImage: String!
@@ -282,10 +282,8 @@ input NewArticle {
 }
 
 type Mutation {
-  createArticle(input: NewArticle!): Article!
-}
-
-scalar Time`, BuiltIn: false},
+  createPost(input: NewPost!): Post!
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -293,13 +291,13 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createArticle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createPost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewArticle
+	var arg0 model.NewPost
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewArticle2githubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐNewArticle(ctx, tmp)
+		arg0, err = ec.unmarshalNNewPost2githubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐNewPost(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -323,7 +321,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_article_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_post_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -375,251 +373,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _Article_id(ctx context.Context, field graphql.CollectedField, obj *model.Article) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Article",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Article_slug(ctx context.Context, field graphql.CollectedField, obj *model.Article) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Article",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Slug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Article_title(ctx context.Context, field graphql.CollectedField, obj *model.Article) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Article",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Article_date(ctx context.Context, field graphql.CollectedField, obj *model.Article) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Article",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Date, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Article_coverImage(ctx context.Context, field graphql.CollectedField, obj *model.Article) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Article",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CoverImage, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Article_content(ctx context.Context, field graphql.CollectedField, obj *model.Article) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Article",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Article().Content(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Content)
-	fc.Result = res
-	return ec.marshalNContent2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐContent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Article_description(ctx context.Context, field graphql.CollectedField, obj *model.Article) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Article",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
 
 func (ec *executionContext) _Content_id(ctx context.Context, field graphql.CollectedField, obj *model.Content) (ret graphql.Marshaler) {
 	defer func() {
@@ -691,7 +444,7 @@ func (ec *executionContext) _Content_body(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_createArticle(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_createPost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -708,7 +461,7 @@ func (ec *executionContext) _Mutation_createArticle(ctx context.Context, field g
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_createArticle_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_createPost_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -716,7 +469,7 @@ func (ec *executionContext) _Mutation_createArticle(ctx context.Context, field g
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateArticle(rctx, args["input"].(model.NewArticle))
+		return ec.resolvers.Mutation().CreatePost(rctx, args["input"].(model.NewPost))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -728,12 +481,257 @@ func (ec *executionContext) _Mutation_createArticle(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Article)
+	res := resTmp.(*model.Post)
 	fc.Result = res
-	return ec.marshalNArticle2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐArticle(ctx, field.Selections, res)
+	return ec.marshalNPost2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐPost(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_articles(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_id(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_slug(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Slug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_title(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_date(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Date, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_coverImage(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CoverImage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_content(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Post().Content(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Content)
+	fc.Result = res
+	return ec.marshalNContent2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐContent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_description(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_posts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -751,7 +749,7 @@ func (ec *executionContext) _Query_articles(ctx context.Context, field graphql.C
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Articles(rctx)
+		return ec.resolvers.Query().Posts(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -763,12 +761,12 @@ func (ec *executionContext) _Query_articles(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Article)
+	res := resTmp.([]*model.Post)
 	fc.Result = res
-	return ec.marshalNArticle2ᚕᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐArticleᚄ(ctx, field.Selections, res)
+	return ec.marshalNPost2ᚕᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐPostᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_article(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_post(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -785,7 +783,7 @@ func (ec *executionContext) _Query_article(ctx context.Context, field graphql.Co
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_article_args(ctx, rawArgs)
+	args, err := ec.field_Query_post_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -793,7 +791,7 @@ func (ec *executionContext) _Query_article(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Article(rctx, args["slug"].(string))
+		return ec.resolvers.Query().Post(rctx, args["slug"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -802,9 +800,9 @@ func (ec *executionContext) _Query_article(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Article)
+	res := resTmp.(*model.Post)
 	fc.Result = res
-	return ec.marshalOArticle2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐArticle(ctx, field.Selections, res)
+	return ec.marshalOPost2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐPost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1965,8 +1963,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputNewArticle(ctx context.Context, obj interface{}) (model.NewArticle, error) {
-	var it model.NewArticle
+func (ec *executionContext) unmarshalInputNewPost(ctx context.Context, obj interface{}) (model.NewPost, error) {
+	var it model.NewPost
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -2025,72 +2023,6 @@ func (ec *executionContext) unmarshalInputNewArticle(ctx context.Context, obj in
 
 // region    **************************** object.gotpl ****************************
 
-var articleImplementors = []string{"Article"}
-
-func (ec *executionContext) _Article(ctx context.Context, sel ast.SelectionSet, obj *model.Article) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, articleImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Article")
-		case "id":
-			out.Values[i] = ec._Article_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "slug":
-			out.Values[i] = ec._Article_slug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "title":
-			out.Values[i] = ec._Article_title(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "date":
-			out.Values[i] = ec._Article_date(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "coverImage":
-			out.Values[i] = ec._Article_coverImage(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "content":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Article_content(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		case "description":
-			out.Values[i] = ec._Article_description(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var contentImplementors = []string{"Content"}
 
 func (ec *executionContext) _Content(ctx context.Context, sel ast.SelectionSet, obj *model.Content) graphql.Marshaler {
@@ -2138,10 +2070,76 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createArticle":
-			out.Values[i] = ec._Mutation_createArticle(ctx, field)
+		case "createPost":
+			out.Values[i] = ec._Mutation_createPost(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var postImplementors = []string{"Post"}
+
+func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj *model.Post) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Post")
+		case "id":
+			out.Values[i] = ec._Post_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "slug":
+			out.Values[i] = ec._Post_slug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "title":
+			out.Values[i] = ec._Post_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "date":
+			out.Values[i] = ec._Post_date(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "coverImage":
+			out.Values[i] = ec._Post_coverImage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "content":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Post_content(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "description":
+			out.Values[i] = ec._Post_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -2169,7 +2167,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "articles":
+		case "posts":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2177,13 +2175,13 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_articles(ctx, field)
+				res = ec._Query_posts(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
 				return res
 			})
-		case "article":
+		case "post":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2191,7 +2189,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_article(ctx, field)
+				res = ec._Query_post(ctx, field)
 				return res
 			})
 		case "__type":
@@ -2454,57 +2452,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNArticle2githubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐArticle(ctx context.Context, sel ast.SelectionSet, v model.Article) graphql.Marshaler {
-	return ec._Article(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNArticle2ᚕᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐArticleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Article) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNArticle2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐArticle(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNArticle2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐArticle(ctx context.Context, sel ast.SelectionSet, v *model.Article) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Article(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2549,9 +2496,60 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNNewArticle2githubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐNewArticle(ctx context.Context, v interface{}) (model.NewArticle, error) {
-	res, err := ec.unmarshalInputNewArticle(ctx, v)
+func (ec *executionContext) unmarshalNNewPost2githubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐNewPost(ctx context.Context, v interface{}) (model.NewPost, error) {
+	res, err := ec.unmarshalInputNewPost(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPost2githubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v model.Post) graphql.Marshaler {
+	return ec._Post(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPost2ᚕᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Post) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPost2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐPost(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNPost2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v *model.Post) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Post(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -2798,13 +2796,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOArticle2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐArticle(ctx context.Context, sel ast.SelectionSet, v *model.Article) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Article(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2827,6 +2818,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return graphql.MarshalBoolean(*v)
+}
+
+func (ec *executionContext) marshalOPost2ᚖgithubᚗcomᚋnᚑkurasawaᚋblogᚑapiᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v *model.Post) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Post(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

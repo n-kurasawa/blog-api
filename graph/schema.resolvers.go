@@ -5,48 +5,47 @@ package graph
 
 import (
 	"context"
-
 	"github.com/n-kurasawa/blog-api/graph/generated"
 	"github.com/n-kurasawa/blog-api/graph/model"
 )
 
-func (r *articleResolver) Content(ctx context.Context, obj *model.Article) (*model.Content, error) {
+func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*model.Post, error) {
+	post, err := r.repository.CreatePost(input)
+	if err != nil {
+		return nil, err
+	}
+	return post, nil
+}
+
+func (r *postResolver) Content(ctx context.Context, obj *model.Post) (*model.Content, error) {
 	return For(ctx).ContentByID.Load(obj.ContentID)
 }
 
-func (r *mutationResolver) CreateArticle(ctx context.Context, input model.NewArticle) (*model.Article, error) {
-	article, err := r.repository.CreateArticle(input)
+func (r *queryResolver) Posts(ctx context.Context) ([]*model.Post, error) {
+	posts, err := r.repository.GetPosts()
 	if err != nil {
 		return nil, err
 	}
-	return article, nil
+	return posts, nil
 }
 
-func (r *queryResolver) Articles(ctx context.Context) ([]*model.Article, error) {
-	articles, err := r.repository.GetArticles()
+func (r *queryResolver) Post(ctx context.Context, slug string) (*model.Post, error) {
+	post, err := r.repository.GetPost(slug)
 	if err != nil {
 		return nil, err
 	}
-	return articles, nil
+	return post, nil
 }
-
-func (r *queryResolver) Article(ctx context.Context, slug string) (*model.Article, error) {
-	article, err := r.repository.GetArticle(slug)
-	if err != nil {
-		return nil, err
-	}
-	return article, nil
-}
-
-// Article returns generated.ArticleResolver implementation.
-func (r *Resolver) Article() generated.ArticleResolver { return &articleResolver{r} }
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
+// Post returns generated.PostResolver implementation.
+func (r *Resolver) Post() generated.PostResolver { return &postResolver{r} }
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
-type articleResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
+type postResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

@@ -28,59 +28,59 @@ func (r *SQLRepository) GetContent(id string) (*model.Content, error) {
 	return &content, nil
 }
 
-func (r *SQLRepository) GetArticles() ([]*model.Article, error) {
-	rows, err := r.db.Query("select id, slug, title, date, cover_image, description, content_id from articles")
+func (r *SQLRepository) GetPosts() ([]*model.Post, error) {
+	rows, err := r.db.Query("select id, slug, title, date, cover_image, description, content_id from posts")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	articles := make([]*model.Article, 0)
+	posts := make([]*model.Post, 0)
 	for rows.Next() {
-		article := model.Article{}
-		if err := rows.Scan(&article.ID, &article.Slug, &article.Title, &article.Date, &article.CoverImage, &article.Description, &article.ContentID); err != nil {
+		post := model.Post{}
+		if err := rows.Scan(&post.ID, &post.Slug, &post.Title, &post.Date, &post.CoverImage, &post.Description, &post.ContentID); err != nil {
 			return nil, err
 		}
-		articles = append(articles, &article)
+		posts = append(posts, &post)
 	}
-	return articles, nil
+	return posts, nil
 }
 
-func (r *SQLRepository) GetArticle(slug string) (*model.Article, error) {
-	row := r.db.QueryRow("select id, slug, title, date, cover_image, description, content_id from articles where slug = ?", slug)
-	article := model.Article{}
-	if err := row.Scan(&article.ID, &article.Slug, &article.Title, &article.Date, &article.CoverImage, &article.Description, &article.ContentID); err != nil {
+func (r *SQLRepository) GetPost(slug string) (*model.Post, error) {
+	row := r.db.QueryRow("select id, slug, title, date, cover_image, description, content_id from posts where slug = ?", slug)
+	post := model.Post{}
+	if err := row.Scan(&post.ID, &post.Slug, &post.Title, &post.Date, &post.CoverImage, &post.Description, &post.ContentID); err != nil {
 		return nil, err
 	}
-	return &article, nil
+	return &post, nil
 }
 
-func (r *SQLRepository) CreateArticle(article model.NewArticle) (*model.Article, error) {
-	result, err := r.db.Exec("insert into contents (body) values (?)", article.Content)
+func (r *SQLRepository) CreatePost(post model.NewPost) (*model.Post, error) {
+	result, err := r.db.Exec("insert into contents (body) values (?)", post.Content)
 	if err != nil {
 		return nil, err
 	}
-	query := "insert into articles (slug, title, date, cover_image, description, content_id) values (?, ?, ?, ?, ?, ?)"
+	query := "insert into posts (slug, title, date, cover_image, description, content_id) values (?, ?, ?, ?, ?, ?)"
 	contentID, err := result.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
 	date := time.Now()
-	result, err = r.db.Exec(query, article.Slug, article.Title, date, article.CoverImage, article.Description, contentID)
+	result, err = r.db.Exec(query, post.Slug, post.Title, date, post.CoverImage, post.Description, contentID)
 	if err != nil {
 		return nil, err
 	}
-	articleID, err := result.LastInsertId()
+	postID, err := result.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.Article{
-		ID:          strconv.Itoa(int(articleID)),
-		Slug:        article.Slug,
-		Title:       article.Title,
+	return &model.Post{
+		ID:          strconv.Itoa(int(postID)),
+		Slug:        post.Slug,
+		Title:       post.Title,
 		Date:        date.Format(time.RFC3339),
-		CoverImage:  article.CoverImage,
-		Description: article.Description,
+		CoverImage:  post.CoverImage,
+		Description: post.Description,
 		ContentID:   strconv.Itoa(int(contentID)),
 	}, nil
 }
