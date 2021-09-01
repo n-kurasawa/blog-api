@@ -56,6 +56,19 @@ package:
 
 functions:
   query:
+    memorySize: 128
+    timeout: 30
+    vpc:
+      securityGroupIds:
+        - sg-08132679
+      subnetIds:
+        - subnet-a39fb7f8
+        - subnet-c79959ec
+        - subnet-8740becf
+    environment:
+      DB_USER: ${ssm:blog-db-user}
+      DB_PASSWORD: ${ssm:blog-db-password}
+      DB_HOST: ${ssm:blog-db-host}
     handler: bin/query
     events:
       - http:

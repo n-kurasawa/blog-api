@@ -1,4 +1,4 @@
-.PHONY: build clean deploy
+.PHONY: build clean deploy undeploy
 
 build:
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/query cmd/lambda.go
@@ -8,3 +8,6 @@ clean:
 
 deploy: clean build
 	sls deploy --verbose
+
+undeploy:
+	sls remove --verbose
