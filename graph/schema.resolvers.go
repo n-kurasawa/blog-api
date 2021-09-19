@@ -5,13 +5,20 @@ package graph
 
 import (
 	"context"
-
 	"github.com/n-kurasawa/blog-api/graph/generated"
 	"github.com/n-kurasawa/blog-api/graph/model"
 )
 
 func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*model.Post, error) {
 	post, err := r.repository.CreatePost(input)
+	if err != nil {
+		return nil, err
+	}
+	return post, nil
+}
+
+func (r *mutationResolver) UpdatePost(ctx context.Context, input model.EditPost) (*model.Post, error) {
+	post, err := r.repository.UpdatePost(input)
 	if err != nil {
 		return nil, err
 	}
