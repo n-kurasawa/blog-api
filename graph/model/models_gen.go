@@ -13,4 +13,5 @@ type NewPost struct {
 	CoverImage  string `json:"coverImage"`
 	Content     string `json:"content"`
 	Description string `json:"description"`
+	PublishedAt string `json:"publishedAt"`
 }

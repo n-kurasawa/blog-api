@@ -2,10 +2,10 @@ type Post {
   id: ID!
   slug: String!
   title: String!
-  date: String!
   coverImage: String!
   content: Content!
   description: String!
+  publishedAt: String!
 }
 
 type Content {
@@ -24,6 +24,7 @@ input NewPost {
   coverImage: String!
   content: String!
   description: String!
+  publishedAt: String!
 }
 
 type Mutation {
