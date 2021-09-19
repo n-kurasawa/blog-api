@@ -88,6 +88,10 @@ func (r *SQLRepository) CreatePost(post model.NewPost) (*model.Post, error) {
 	}, nil
 }
 
+func (r *SQLRepository) UpdatePost(post model.EditPost) (*model.Post, error) {
+	return nil, nil
+}
+
 type ContentSQLRepository struct {
 	db *sql.DB
 }

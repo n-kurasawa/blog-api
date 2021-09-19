@@ -27,6 +27,17 @@ input NewPost {
   publishedAt: String!
 }
 
+input EditPost {
+  id: ID!
+  slug: String!
+  title: String!
+  coverImage: String!
+  content: String!
+  description: String!
+  publishedAt: String!
+}
+
 type Mutation {
   createPost(input: NewPost!): Post!
+  updatePost(input: EditPost!): Post!
 }

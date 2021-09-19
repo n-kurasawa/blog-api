@@ -7,6 +7,7 @@ type Repository interface {
 	GetPosts() ([]*model.Post, error)
 	GetPost(slug string) (*model.Post, error)
 	CreatePost(post model.NewPost) (*model.Post, error)
+	UpdatePost(post model.EditPost) (*model.Post, error)
 }
 
 type ContentRepository interface {
