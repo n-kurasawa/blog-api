@@ -20,3 +20,6 @@ CREATE TABLE posts (
   UNIQUE KEY idx_slug (`slug`),
   CONSTRAINT `fk_content_id` FOREIGN KEY (`content_id`) REFERENCES `contents` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+alter table posts add published_at date NOT NULL;
+alter table posts change date created_at datetime NOT NULL after published_at;
