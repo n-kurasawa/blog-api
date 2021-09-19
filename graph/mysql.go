@@ -89,7 +89,30 @@ func (r *SQLRepository) CreatePost(post model.NewPost) (*model.Post, error) {
 }
 
 func (r *SQLRepository) UpdatePost(post model.EditPost) (*model.Post, error) {
-	return nil, nil
+	row := r.db.QueryRow("select content_id from posts where id = ?", post.ID)
+	var contentID int
+	if err := row.Scan(&contentID); err != nil {
+		return nil, err
+	}
+
+	if _, err := r.db.Exec("update contents set body = ? where id = ?", post.Content, contentID); err != nil {
+		return nil, err
+	}
+
+	query := "update posts set slug = ?, title = ?, published_at = ?, cover_image = ?, description = ? where id = ?"
+	if _, err := r.db.Exec(query, post.Slug, post.Title, post.PublishedAt, post.CoverImage, post.Description, post.ID); err != nil {
+		return nil, err
+	}
+
+	return &model.Post{
+		ID:          post.ID,
+		Slug:        post.Slug,
+		Title:       post.Title,
+		PublishedAt: post.PublishedAt,
+		CoverImage:  post.CoverImage,
+		Description: post.Description,
+		ContentID:   strconv.Itoa(contentID),
+	}, nil
 }
 
 type ContentSQLRepository struct {
