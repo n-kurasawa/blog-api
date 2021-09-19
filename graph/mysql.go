@@ -29,7 +29,7 @@ func (r *SQLRepository) GetContent(id string) (*model.Content, error) {
 }
 
 func (r *SQLRepository) GetPosts() ([]*model.Post, error) {
-	rows, err := r.db.Query("select id, slug, title, date, cover_image, description, content_id from posts")
+	rows, err := r.db.Query("select id, slug, title, published_at, cover_image, description, content_id from posts")
 	if err != nil {
 		return nil, err
 	}
@@ -37,20 +37,24 @@ func (r *SQLRepository) GetPosts() ([]*model.Post, error) {
 	posts := make([]*model.Post, 0)
 	for rows.Next() {
 		post := model.Post{}
-		if err := rows.Scan(&post.ID, &post.Slug, &post.Title, &post.Date, &post.CoverImage, &post.Description, &post.ContentID); err != nil {
+		var publishedAt time.Time
+		if err := rows.Scan(&post.ID, &post.Slug, &post.Title, &publishedAt, &post.CoverImage, &post.Description, &post.ContentID); err != nil {
 			return nil, err
 		}
+		post.PublishedAt = publishedAt.Format("2006-01-02")
 		posts = append(posts, &post)
 	}
 	return posts, nil
 }
 
 func (r *SQLRepository) GetPost(slug string) (*model.Post, error) {
-	row := r.db.QueryRow("select id, slug, title, date, cover_image, description, content_id from posts where slug = ?", slug)
+	row := r.db.QueryRow("select id, slug, title, published_at, cover_image, description, content_id from posts where slug = ?", slug)
 	post := model.Post{}
-	if err := row.Scan(&post.ID, &post.Slug, &post.Title, &post.Date, &post.CoverImage, &post.Description, &post.ContentID); err != nil {
+	var publishedAt time.Time
+	if err := row.Scan(&post.ID, &post.Slug, &post.Title, &publishedAt, &post.CoverImage, &post.Description, &post.ContentID); err != nil {
 		return nil, err
 	}
+	post.PublishedAt = publishedAt.Format("2006-01-02")
 	return &post, nil
 }
 
@@ -59,13 +63,12 @@ func (r *SQLRepository) CreatePost(post model.NewPost) (*model.Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "insert into posts (slug, title, date, cover_image, description, content_id) values (?, ?, ?, ?, ?, ?)"
+	query := "insert into posts (slug, title, published_at, cover_image, description, content_id, created_at) values (?, ?, ?, ?, ?, ?, ?)"
 	contentID, err := result.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
-	date := time.Now()
-	result, err = r.db.Exec(query, post.Slug, post.Title, date, post.CoverImage, post.Description, contentID)
+	result, err = r.db.Exec(query, post.Slug, post.Title, post.PublishedAt, post.CoverImage, post.Description, contentID, time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +81,7 @@ func (r *SQLRepository) CreatePost(post model.NewPost) (*model.Post, error) {
 		ID:          strconv.Itoa(int(postID)),
 		Slug:        post.Slug,
 		Title:       post.Title,
-		Date:        date.Format(time.RFC3339),
+		PublishedAt: post.PublishedAt,
 		CoverImage:  post.CoverImage,
 		Description: post.Description,
 		ContentID:   strconv.Itoa(int(contentID)),

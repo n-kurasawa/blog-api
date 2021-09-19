@@ -1,4 +1,3 @@
-//go:generate go install github.com/99designs/gqlgen@latest
 //go:generate gqlgen
 package graph
 
