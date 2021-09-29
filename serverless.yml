@@ -18,15 +18,15 @@ service: blog-api
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: '2'
+frameworkVersion: "2"
 
 provider:
   name: aws
   runtime: go1.x
   lambdaHashingVersion: 20201221
 
-# you can overwrite defaults here
-#  stage: dev
+  # you can overwrite defaults here
+  #  stage: dev
   region: ap-northeast-1
 
 # you can add statements to the Lambda function's IAM Role here
@@ -51,7 +51,7 @@ provider:
 
 package:
   patterns:
-    - '!./**'
+    - "!./**"
     - ./bin/**
 
 functions:
@@ -74,6 +74,8 @@ functions:
       - http:
           path: /query
           method: post
+          cors:
+            origin: "*"
       - http:
           path: /playground
           method: get
